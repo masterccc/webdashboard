@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script src="alpine.min.js" defer></script>
+<link rel="stylesheet" href="uikit.min.css">
+
+<style>
+    .uk-table td {
+        padding: 2px 11px;
+        vertical-align: top;
+      }
+</style>
+</head>
+<body>
+
+    
+    <nav style="width:100%;position:fixed" class="uk-navbar-container" uk-navbar>
+        <div class="uk-navbar-left">
+    
+            <ul class="uk-navbar-nav">
+                <li><a href="/">Go back</a></li>
+                <li><a href="#info">Info</a></li>
+                <li><a href="#net">Network</a></li>
+                <li><a href="#procs">Process</a></li>
+                <li><a href="#du">Disque Usage</a></li>
+                <li><a href="#ss">Active connections</a></li>
+                <li><a href="#f2b">Fail2ban</a></li>
+                <li><a href="#"></a></li>
+                
+                <li><a href="#">Item</a></li>
+            </ul>
+    
+        </div>
+    </nav>
+    <div id="here" class="uk-dark uk-container uk-container-large">
+       
+        <br><br>
+        <h1 id="net">Info</h1>
+        <table  x-data=" { infos : [] } " x-init="fetch('/systemapi/info')
+        .then(response => response.json())
+        .then(data => infos = data)" class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>Info</th>
+                    <th>Valeur</th>
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in infos">
+                <tr>
+                    <td x-text="p.key"></td>
+                    <td x-text="p.value"></td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+
+
+        <h1 id="net">Network interfaces</h1>
+        <table  x-data=" { nets : [] } " x-init="fetch('/systemapi/net')
+        .then(response => response.json())
+        .then(data => nets = data)" class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>Interface</th>
+                    <th>State</th>
+                    <th>Addr</th>
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in nets">
+                <tr>
+                    <td x-text="p.iface"></td>
+                    <td x-text="p.state"></td>
+                    <td x-text="p.addr"></td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+
+       
+        <h1 id="procs">Processes</h1>
+        <div x-data=" { name:'pid', tri:true, procs : [], updatedata :  (name,tri) =>{ 
+             return fetch('/systemapi/processes?name=' + name + '&tri=' + tri)
+            .then(response => response.json())
+            .then( data => {return data})
+        } } " x-init="procs = await updatedata('pid','-')">
+      
+        <table   class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th x-data="{tri:false, name:'user'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">User ▲▼</th>
+                    <th x-data="{tri:true, name:'pid'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">PID ▲▼</th>
+                    <th x-data="{tri:true, name:'ppid'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">PPID ▲▼</th>
+                    <th x-data="{tri:true, name:'pcpu'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">% CPU ▲▼</th>
+                    <th x-data="{tri:true, name:'pmem'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">% MEM ▲▼</th>
+                    <th x-data="{tri:true, name:'start'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">Start time ▲▼</th>
+                    <th x-data="{tri:true, name:'cmd'}" x-on:click="tri=!tri;procs = await updatedata(name, tri)">Command line ▲▼</th>
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in procs">
+                <tr>
+                    <td x-text="p.user"></td>
+                    <td x-text="p.pid"></td>
+                    <td x-text="p.ppid"></td>
+                    <td x-text="p.pcpu"></td>
+                    <td x-text="p.pmem"></td>
+                    <td x-text="p.start"></td>
+                    <td x-text="p.cmd"></td>
+                  
+                </tr>
+            </template>
+            </tbody>
+        </table>
+        </div>
+
+        <h1 id="du">Disque usage</h1>
+        <table  x-data=" { hdr : [] } " x-init="fetch('/systemapi/hdresources')
+        .then(response => response.json())
+        .then(data => hdr = data)" class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>File system</th>
+                    <th>Type</th>
+                    <th>Size</th>
+                    <th>Used</th>
+                    <th>Available</th>
+                    <th>% Used</th>
+                    <th>Mount point</th>
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in hdr">
+                <tr>
+                    <td x-text="p.fs"></td>
+                    <td x-text="p.type"></td>
+                    <td x-text="p.size"></td>
+                    <td x-text="p.used"></td>
+                    <td x-text="p.avail"></td>
+                    <td x-text="p.pused"></td>
+                    <td x-text="p.mount"></td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+
+        <h1 id="ss">Network connections</h1>
+        <table  x-data=" { conns : [] } " x-init="fetch('/systemapi/ss')
+        .then(response => response.json())
+        .then(data => conns = data)" class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>Connections State</th>
+                    <th>Local addr</th>
+                    <th>Local port</th>
+                    <th>Remote addr</th>
+                    <th>Remote port</th>
+                    <th>Process</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in conns">
+                <tr>
+                    <td x-text="p.state"></td>
+                    <td x-text="p.local_addr"></td>
+                    <td x-text="p.local_port"></td>
+                    <td x-text="p.remote_addr"></td>
+                    <td x-text="p.remote_port"></td>
+                    <td x-text="p.proc"></td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+
+        <h1 id="f2b">Fail2ban - Last 200 actions</h1>
+        <table  x-data=" { conns : [] } " x-init="fetch('/systemapi/f2b')
+        .then(response => response.json())
+        .then(data => conns = data)" class="uk-table uk-table-striped">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Info</th>
+                </tr>
+            </thead>
+            <tbody>
+            <template x-for="p in conns">
+                <tr>
+                    <td x-text="p.date"></td>
+                    <td x-text="p.type"></td>
+                    <td x-text="p.info"></td>
+                </tr>
+            </template>
+            </tbody>
+        </table>
+    <div>
+</body>
+</html> 
