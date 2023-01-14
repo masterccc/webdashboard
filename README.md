@@ -5,7 +5,7 @@ Web-based system monitoring.
 
 ## Screenshot
 
-![Alt text](https://raw.githubusercontent.com/masterccc/webdashboard/main/dashboardsample.png "Optional title")
+![Alt text](https://github.com/masterccc/webdashboard/blob/e135ed2156580f9e0b345871aec3af6b88e88083/dashboardsample.png "Optional title")
 
 # Nginx config
 
