@@ -1,0 +1,12 @@
+[Unit]
+Description=Web system viewer
+After=network.target
+
+[Service]
+User=root
+Type=simple
+ExecStart=/home/###USERNAME###/deploy/apps/dashboard/venv/bin/python3 /home/###USERNAME###/deploy/apps/dashboard/systemviewer.py
+TimeoutStopSec=30
+
+[Install]
+WantedBy=default.target
